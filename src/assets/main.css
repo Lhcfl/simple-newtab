@@ -1,0 +1,29 @@
+@import './base.css';
+
+#app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-weight: normal;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: var(--color-text);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+body {
+  background: #222;
+  color: #fff;
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
