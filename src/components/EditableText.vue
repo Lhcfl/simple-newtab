@@ -1,29 +1,29 @@
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
+import { nextTick, ref } from 'vue';
 
-const text = defineModel<string>({ required: true })
+const text = defineModel<string>({ required: true });
 
 defineProps<{
-  minWidth?: number
-}>()
+  minWidth?: number;
+}>();
 
-const inputer = ref<HTMLInputElement | null>(null)
-const editing = ref(false)
+const inputer = ref<HTMLInputElement | null>(null);
+const editing = ref(false);
 
 function focus() {
-  editing.value = true
+  editing.value = true;
   nextTick(() => {
-    inputer.value?.focus()
-  })
+    inputer.value?.focus();
+  });
 }
 
 function focusout() {
-  editing.value = false
+  editing.value = false;
 }
 
 function keydown(ev: KeyboardEvent) {
   if (ev.code === 'Enter') {
-    focusout()
+    focusout();
   }
 }
 </script>

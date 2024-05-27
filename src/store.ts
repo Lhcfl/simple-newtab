@@ -1,5 +1,5 @@
-import { useStorage } from '@vueuse/core'
-import type { Column } from '@/types/columns'
+import { useStorage } from '@vueuse/core';
+import type { Column } from '@/types/columns';
 
 export const storage = {
   newTabTile: useStorage('newTabTitle', 'The New Tab!!', localStorage),
@@ -36,4 +36,4 @@ export const storage = {
     ] as Column[],
     localStorage,
   ),
-}
+};

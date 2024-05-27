@@ -1,38 +1,38 @@
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
+import { nextTick, ref } from 'vue';
 
 const model = defineProps<{
-  title: string
-  url: string
-}>()
+  title: string;
+  url: string;
+}>();
 
 const emit = defineEmits<{
-  'update:title': [title: string]
-}>()
+  'update:title': [title: string];
+}>();
 
-const inputer = ref<HTMLInputElement | null>(null)
-const editing = ref(false)
+const inputer = ref<HTMLInputElement | null>(null);
+const editing = ref(false);
 
-const title = ref(model.title)
+const title = ref(model.title);
 
 function focus() {
-  editing.value = true
+  editing.value = true;
   nextTick(() => {
-    inputer.value?.focus()
-  })
+    inputer.value?.focus();
+  });
 }
 
 function focusout() {
   if (editing.value === true) {
-    emit('update:title', title.value)
-    title.value = model.title
+    emit('update:title', title.value);
+    title.value = model.title;
   }
-  editing.value = false
+  editing.value = false;
 }
 
 function keydown(ev: KeyboardEvent) {
   if (ev.code === 'Enter') {
-    focusout()
+    focusout();
   }
 }
 </script>

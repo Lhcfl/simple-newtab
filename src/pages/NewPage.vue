@@ -2,7 +2,7 @@
   <h1 class="page-title">
     <EditableText v-model="pageTitle" :min-width="100" />
   </h1>
-  <main ref="mainRef">
+  <main ref="mainRef" @wheel.prevent="listener">
     <draggable
       tag="div"
       class="columns"
@@ -36,7 +36,8 @@
                 :key="link.id"
                 @click="
                   (e) => {
-                    if ((e.target as HTMLElement).tagName.toLowerCase() === 'div') routeTo(link.url)
+                    if ((e.target as HTMLElement).tagName.toLowerCase() === 'div')
+                      routeTo(link.url);
                   }
                 "
               >
@@ -45,10 +46,10 @@
                   :url="link.url"
                   @update:title="
                     (t) => {
-                      if (t) link.title = t
-                      else column.items = column.items.filter((l) => l.id !== link.id)
+                      if (t) link.title = t;
+                      else column.items = column.items.filter((l) => l.id !== link.id);
 
-                      columns = columns.filter((c) => c.items.length > 0)
+                      columns = columns.filter((c) => c.items.length > 0);
                     }
                   "
                 />
@@ -69,7 +70,7 @@
                       title,
                       url,
                     },
-                  ])
+                  ]);
                 }
               "
             />
@@ -95,7 +96,7 @@
                   },
                 ],
               },
-            ])
+            ]);
           }
         "
       />
@@ -104,65 +105,55 @@
 </template>
 
 <script setup lang="ts">
-import draggable from 'vuedraggable'
-import { onMounted, onUnmounted, ref } from 'vue'
-import { useTitle } from '@vueuse/core'
-import EditableText from '@/components/EditableText.vue'
-import { storage } from '@/store'
-import type { Column, LinkItem } from '@/types/columns'
-import EditableLink from '@/components/EditableLink.vue'
-import AddLink from '@/components/AddLink.vue'
+import draggable from 'vuedraggable';
+import { ref } from 'vue';
+import { useTitle } from '@vueuse/core';
+import EditableText from '@/components/EditableText.vue';
+import { storage } from '@/store';
+import type { Column, LinkItem } from '@/types/columns';
+import EditableLink from '@/components/EditableLink.vue';
+import AddLink from '@/components/AddLink.vue';
 
-const columnDragging = ref(false)
-const itemDragging = ref(false)
-const mainRef = ref<HTMLElement | null>(null)
+const columnDragging = ref(false);
+const itemDragging = ref(false);
+const mainRef = ref<HTMLElement | null>(null);
 
-const pageTitle = storage.newTabTile
+const pageTitle = storage.newTabTile;
 
-const columns = getColumns()
+const columns = getColumns();
 
 function routeTo(url: string) {
-  window.location.href = url
+  window.location.href = url;
 }
 
 function getColumns() {
-  let ret = JSON.parse(JSON.stringify(storage.newTabColumns.value)) as Column[]
+  let ret = JSON.parse(JSON.stringify(storage.newTabColumns.value)) as Column[];
 
-  ret = ret.filter((c) => c.items.length > 0)
+  ret = ret.filter((c) => c.items.length > 0);
   for (const c of ret) {
-    if (!c.id) c.id = getRandomUUID()
+    if (!c.id) c.id = getRandomUUID();
     for (const l of c.items) {
-      if (!l.id) l.id = getRandomUUID()
+      if (!l.id) l.id = getRandomUUID();
     }
   }
 
-  storage.newTabColumns.value = ret
+  storage.newTabColumns.value = ret;
 
-  return storage.newTabColumns
+  return storage.newTabColumns;
 }
 
-useTitle(pageTitle)
+useTitle(pageTitle);
 
 const listener = (e: WheelEvent) => {
-  e.preventDefault()
   mainRef.value?.scrollTo({
-    behavior: 'smooth',
+    // behavior: 'smooth',
     left: mainRef.value.scrollLeft + e.deltaY,
-  })
-}
+  });
+};
 
 function getRandomUUID() {
-  return crypto.randomUUID()
+  return crypto.randomUUID();
 }
-
-onMounted(() => {
-  console.log(mainRef.value)
-  mainRef.value?.addEventListener('wheel', listener, { passive: true })
-})
-
-onUnmounted(() => {
-  mainRef.value?.removeEventListener('wheel', listener)
-})
 </script>
 
 <style lang="stylus" scoped>

@@ -1,36 +1,36 @@
 <script setup lang="ts">
-import { nextTick, ref } from 'vue'
+import { nextTick, ref } from 'vue';
 
 const emit = defineEmits<{
-  success: [title: string, url: string]
-}>()
+  success: [title: string, url: string];
+}>();
 
-const inputerUrl = ref<HTMLInputElement | null>(null)
-const inputerTitle = ref<HTMLInputElement | null>(null)
-const editing = ref(false)
+const inputerUrl = ref<HTMLInputElement | null>(null);
+const inputerTitle = ref<HTMLInputElement | null>(null);
+const editing = ref(false);
 
-const title = ref('')
-const url = ref('')
+const title = ref('');
+const url = ref('');
 
 function focus() {
-  editing.value = true
-  title.value = ''
-  url.value = ''
+  editing.value = true;
+  title.value = '';
+  url.value = '';
   nextTick(() => {
-    inputerUrl.value?.focus()
-  })
+    inputerUrl.value?.focus();
+  });
 }
 
 function focusout() {
   if (editing.value === true && url.value) {
-    emit('success', title.value || url.value, url.value)
+    emit('success', title.value || url.value, url.value);
   }
-  editing.value = false
+  editing.value = false;
 }
 
 function keydown(ev: KeyboardEvent) {
   if (ev.code === 'Enter') {
-    focusout()
+    focusout();
   }
 }
 </script>
@@ -44,7 +44,7 @@ function keydown(ev: KeyboardEvent) {
         @keydown="
           (ev) => {
             if (ev.code === 'Enter') {
-              inputerUrl?.focus()
+              inputerUrl?.focus();
             }
           }
         "

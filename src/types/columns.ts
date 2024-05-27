@@ -1,11 +1,11 @@
 export interface LinkItem {
-  id: string
-  title: string
-  url: string
+  id: string;
+  title: string;
+  url: string;
 }
 
 export interface Column {
-  id: string
-  title: string
-  items: LinkItem[]
+  id: string;
+  title: string;
+  items: LinkItem[];
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ModalsContainer } from 'vue-final-modal'
-import 'vue-final-modal/style.css'
-import NewPage from './pages/NewPage.vue'
+import { ModalsContainer } from 'vue-final-modal';
+import 'vue-final-modal/style.css';
+import NewPage from './pages/NewPage.vue';
 </script>
 
 <template>
