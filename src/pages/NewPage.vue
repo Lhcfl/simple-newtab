@@ -184,7 +184,9 @@ const listener = (e: WheelEvent) => {
   });
 };
 
-const isBookmarkPage = computed(() => props.source === 'bookmark' && route.params.id != null);
+const isBookmarkPage = computed(
+  () => props.source === 'bookmark' && route.params.id != null && route.params.id != '0',
+);
 
 const isFavoratedPage = computed(() =>
   storage.favoratedBookmarks.value.includes(route.params.id as string),
