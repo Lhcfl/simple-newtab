@@ -114,10 +114,11 @@ import type { ColumnsManager } from '@/scripts/columns-manager';
 import router from '@/router';
 import { BookmarksColumnManager } from '@/scripts/bookmarks-columns';
 import { useRoute } from 'vue-router';
+import { TopSitesColumnManager } from '@/scripts/top-sites-columns';
 
 const props = defineProps<{
   rootId?: string;
-  source: 'bookmark' | 'local';
+  source: 'bookmark' | 'local' | 'topsites';
 }>();
 
 const route = useRoute();
@@ -135,8 +136,10 @@ watch(
   async () => {
     if (props.source === 'local') {
       manager.value = new LocalColumnManager();
-    } else {
+    } else if (props.source === 'bookmark') {
       manager.value = new BookmarksColumnManager(route.params.id as string);
+    } else if (props.source === 'topsites') {
+      manager.value = new TopSitesColumnManager();
     }
 
     useTitle(manager.value.title);

@@ -8,9 +8,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      redirect: storage.defaultHome.value.startsWith('/bookmarks')
-        ? storage.defaultHome.value
-        : '/local',
+      redirect: storage.defaultHome.value.trim() !== '/' ? storage.defaultHome.value : '/local',
     },
     {
       path: '/bookmarks/:id',
@@ -27,6 +25,14 @@ const router = createRouter({
       component: NewPage,
       props: {
         source: 'local',
+      },
+    },
+    {
+      path: '/topsites',
+      name: 'topsites',
+      component: NewPage,
+      props: {
+        source: 'topsites',
       },
     },
   ],

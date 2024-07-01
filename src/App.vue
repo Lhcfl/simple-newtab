@@ -5,8 +5,11 @@ import { RouterView } from 'vue-router';
 </script>
 
 <template>
-  <RouterLink to="/bookmarks/0">Bookmark</RouterLink>
-  <RouterLink to="/local">Local</RouterLink>
+  <nav>
+    <RouterLink to="/bookmarks/0">Bookmark</RouterLink>
+    <RouterLink to="/local">Local</RouterLink>
+    <RouterLink to="/topsites">Top Sites</RouterLink>
+  </nav>
   <RouterView />
   <ModalsContainer />
 </template>
@@ -14,5 +17,8 @@ import { RouterView } from 'vue-router';
 <style scoped>
 main {
   width: 100%;
+}
+nav > a {
+  margin-right: 20px;
 }
 </style>
