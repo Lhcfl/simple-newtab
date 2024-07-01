@@ -99,6 +99,9 @@
       />
     </div>
   </main>
+  <button class="float add-favorite" v-if="isBookmarkPage" @click="toggleFavorite">
+    {{ isFavoratedPage ? '从nav删去' : '添加到nav' }}
+  </button>
 </template>
 
 <script setup lang="ts">
@@ -115,6 +118,7 @@ import router from '@/router';
 import { BookmarksColumnManager } from '@/scripts/bookmarks-columns';
 import { useRoute } from 'vue-router';
 import { TopSitesColumnManager } from '@/scripts/top-sites-columns';
+import { storage } from '@/store';
 
 const props = defineProps<{
   rootId?: string;
@@ -179,6 +183,25 @@ const listener = (e: WheelEvent) => {
     left: mainRef.value.scrollLeft + e.deltaY,
   });
 };
+
+const isBookmarkPage = computed(() => props.source === 'bookmark' && route.params.id != null);
+
+const isFavoratedPage = computed(() =>
+  storage.favoratedBookmarks.value.includes(route.params.id as string),
+);
+
+function toggleFavorite() {
+  if (!isBookmarkPage.value) return;
+  if (isFavoratedPage.value) {
+    storage.favoratedBookmarks.value = storage.favoratedBookmarks.value.filter(
+      (x) => x != route.params.id,
+    );
+  } else {
+    storage.favoratedBookmarks.value = storage.favoratedBookmarks.value.concat([
+      route.params.id.toString(),
+    ]);
+  }
+}
 </script>
 
 <style lang="stylus" scoped>
@@ -228,4 +251,15 @@ ul.column-items
   width fix-content
   &.add-link
     margin-left: 450px
+
+.float.add-favorite
+  position fixed
+  right 10px
+  bottom 10px
+  border none
+  background none
+  color var(--primary)
+  transition all 0.3s
+  &:hover
+    opacity 0.8
 </style>
