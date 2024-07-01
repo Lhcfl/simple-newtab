@@ -6,13 +6,13 @@ import { createPinia } from 'pinia';
 import { createVfm } from 'vue-final-modal';
 
 import App from './App.vue';
-// import router from './router'
+import router from './router';
 
 const app = createApp(App);
 
 app.use(createPinia());
 // app.use(Antd)
-// app.use(router)
+app.use(router);
 app.use(createVfm());
 
 app.mount('#app');

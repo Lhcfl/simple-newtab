@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 
 const model = defineProps<{
   title: string;
@@ -35,13 +35,25 @@ function keydown(ev: KeyboardEvent) {
     focusout();
   }
 }
+
+const iconURL = computed(() => {
+  const url = new URL(chrome.runtime.getURL('/_favicon/'));
+  url.searchParams.set('pageUrl', model.url);
+  url.searchParams.set('size', '32');
+  return url.toString();
+});
 </script>
 
 <template>
   <div class="editable-link">
     <input v-if="editing" ref="inputer" v-model="title" @keydown="keydown" @focusout="focusout" />
-    <a v-else :href="model.url"> {{ model.title ?? 'No title' }} </a>
-
+    <RouterLink v-else-if="model.url.startsWith('/')" :to="model.url">
+      {{ model.title ?? 'No title' }}
+    </RouterLink>
+    <template v-else>
+      <img :src="iconURL" width="16" height="16" />
+      <a :href="model.url"> {{ model.title ?? 'No title' }} </a>
+    </template>
     <div class="control-group" v-if="!editing">
       <button class="edit-button" @click="focus">编辑</button>
       <button class="edit-button" @click="emit('update:title', '')">删除</button>

@@ -1,9 +1,10 @@
 <template>
   <h1 class="page-title">
-    <EditableText v-model="pageTitle" :min-width="100" />
+    <EditableText v-if="manager" v-model="manager.title.value" :min-width="100" />
   </h1>
   <main ref="mainRef" @wheel.prevent="listener">
     <draggable
+      v-if="columns"
       tag="div"
       class="columns"
       :component-data="{
@@ -11,12 +12,17 @@
         name: 'list',
       }"
       v-model="columns"
-      @start="columnDragging = true"
-      @end="columnDragging = false"
       item-key="id"
+      @end="dragEnd"
     >
       <template #item="{ element: column }: { element: Column }">
-        <div class="column" :key="column.id">
+        <div class="column" :key="column.id" :data-id="column.id">
+          <EditableText
+            class="column-title"
+            :min-width="100"
+            :model-value="column.title"
+            @update:modelValue="(t) => manager.updateColumn(column.id, { ...column, title: t })"
+          />
           <draggable
             tag="ul"
             class="column-items"
@@ -25,8 +31,7 @@
               name: 'list',
             }"
             v-model="column.items"
-            @start="itemDragging = true"
-            @end="itemDragging = false"
+            @end="dragEnd"
             group="link-item"
             item-key="id"
           >
@@ -34,6 +39,7 @@
               <li
                 class="list-item"
                 :key="link.id"
+                :data-id="link.id"
                 @click="
                   (e) => {
                     if ((e.target as HTMLElement).tagName.toLowerCase() === 'div')
@@ -46,10 +52,15 @@
                   :url="link.url"
                   @update:title="
                     (t) => {
-                      if (t) link.title = t;
-                      else column.items = column.items.filter((l) => l.id !== link.id);
-
-                      columns = columns.filter((c) => c.items.length > 0);
+                      if (t) {
+                        manager.updateLinkItem(link.id, {
+                          ...link,
+                          title: t,
+                        });
+                      } else {
+                        manager.remove(link.id);
+                        manager.removeEmptyColumn();
+                      }
                     }
                   "
                 />
@@ -64,13 +75,10 @@
               url=""
               @success="
                 (title, url) => {
-                  column.items = column.items.concat([
-                    {
-                      id: getRandomUUID(),
-                      title,
-                      url,
-                    },
-                  ]);
+                  manager.createLinkItem(column.id, {
+                    title,
+                    url,
+                  });
                 }
               "
             />
@@ -83,20 +91,9 @@
         title=""
         url=""
         @success="
-          (title, url) => {
-            columns = columns.concat([
-              {
-                id: getRandomUUID(),
-                title: '',
-                items: [
-                  {
-                    id: getRandomUUID(),
-                    title,
-                    url,
-                  },
-                ],
-              },
-            ]);
+          async (title, url) => {
+            const col = await manager.createColumn({ title: 'untitled', items: [] });
+            await manager.createLinkItem(col.id, { title, url });
           }
         "
       />
@@ -106,43 +103,72 @@
 
 <script setup lang="ts">
 import draggable from 'vuedraggable';
-import { ref } from 'vue';
+import { computed, ref, shallowRef, watch, type Ref } from 'vue';
 import { useTitle } from '@vueuse/core';
 import EditableText from '@/components/EditableText.vue';
-import { storage } from '@/store';
 import type { Column, LinkItem } from '@/types/columns';
 import EditableLink from '@/components/EditableLink.vue';
 import AddLink from '@/components/AddLink.vue';
+import { LocalColumnManager } from '@/scripts/local-columns';
+import type { ColumnsManager } from '@/scripts/columns-manager';
+import router from '@/router';
+import { BookmarksColumnManager } from '@/scripts/bookmarks-columns';
+import { useRoute } from 'vue-router';
 
-const columnDragging = ref(false);
-const itemDragging = ref(false);
+const props = defineProps<{
+  rootId?: string;
+  source: 'bookmark' | 'local';
+}>();
+
+const route = useRoute();
+
 const mainRef = ref<HTMLElement | null>(null);
 
-const pageTitle = storage.newTabTile;
+const manager = shallowRef<ColumnsManager>(null as unknown as ColumnsManager);
 
-const columns = getColumns();
+const columns_ref: Ref<Ref<Column[]> | null> = ref(null);
+
+const columns = computed(() => columns_ref.value?.value);
+
+watch(
+  route,
+  async () => {
+    if (props.source === 'local') {
+      manager.value = new LocalColumnManager();
+    } else {
+      manager.value = new BookmarksColumnManager(route.params.id as string);
+    }
+
+    useTitle(manager.value.title);
+
+    columns_ref.value = await manager.value.getColumns();
+  },
+  { immediate: true },
+);
 
 function routeTo(url: string) {
-  window.location.href = url;
-}
-
-function getColumns() {
-  let ret = JSON.parse(JSON.stringify(storage.newTabColumns.value)) as Column[];
-
-  ret = ret.filter((c) => c.items.length > 0);
-  for (const c of ret) {
-    if (!c.id) c.id = getRandomUUID();
-    for (const l of c.items) {
-      if (!l.id) l.id = getRandomUUID();
-    }
+  if (url.startsWith('/')) {
+    router.push(url);
+  } else {
+    window.location.href = url;
   }
-
-  storage.newTabColumns.value = ret;
-
-  return storage.newTabColumns;
 }
 
-useTitle(pageTitle);
+function dragEnd(e: {
+  oldIndex: number;
+  newIndex: number;
+  item: HTMLElement;
+  from: HTMLElement;
+  to: HTMLElement;
+}) {
+  console.log(e);
+  manager.value.move(e.item.getAttribute('data-id')!, {
+    fromIndex: e.oldIndex,
+    toIndex: e.newIndex,
+    fromId: e.from.parentElement?.getAttribute('data-id'),
+    toId: e.to.parentElement?.getAttribute('data-id'),
+  });
+}
 
 const listener = (e: WheelEvent) => {
   mainRef.value?.scrollTo({
@@ -150,10 +176,6 @@ const listener = (e: WheelEvent) => {
     left: mainRef.value.scrollLeft + e.deltaY,
   });
 };
-
-function getRandomUUID() {
-  return crypto.randomUUID();
-}
 </script>
 
 <style lang="stylus" scoped>
@@ -177,6 +199,14 @@ main
 .add-item
 .list-item
   font-size 20px
+  max-width 400px
+
+ul.column-items
+  list-style none
+  padding-left 20px
+
+.column-title
+  font-size 25px
 
 .add-item
   opacity 0

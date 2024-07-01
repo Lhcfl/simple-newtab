@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ModalsContainer } from 'vue-final-modal';
 import 'vue-final-modal/style.css';
-import NewPage from './pages/NewPage.vue';
+import { RouterView } from 'vue-router';
 </script>
 
 <template>
-  <NewPage />
+  <RouterLink to="/bookmarks/0">Bookmark</RouterLink>
+  <RouterLink to="/local">Local</RouterLink>
+  <RouterView />
   <ModalsContainer />
 </template>
 
