@@ -1,9 +1,10 @@
 import type { Column, LinkItem } from '@/types/columns';
 import { ref } from 'vue';
 import { ColumnsManager } from './columns-manager';
+import i18next from 'i18next';
 
 export class TopSitesColumnManager extends ColumnsManager {
-  title = ref('Top Sites');
+  title = ref(i18next.t('top_sites'));
 
   async getColumns() {
     const res = await chrome.topSites.get();
@@ -25,19 +26,19 @@ export class TopSitesColumnManager extends ColumnsManager {
   async move() {}
 
   async createLinkItem(): Promise<LinkItem> {
-    throw 'WILL NOT IMPLEMENT';
+    throw Error('Method not allowed');
   }
 
   async createColumn(): Promise<Column> {
-    throw 'WILL NOT IMPLEMENT';
+    throw Error('Method not allowed');
   }
 
   async updateColumn(): Promise<Column> {
-    throw 'WILL NOT IMPLEMENT';
+    throw Error('Method not allowed');
   }
 
   async updateLinkItem(): Promise<LinkItem> {
-    throw 'WILL NOT IMPLEMENT';
+    throw Error('Method not allowed');
   }
 
   async removeEmptyColumn() {

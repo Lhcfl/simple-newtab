@@ -4,6 +4,9 @@ import 'vue-final-modal/style.css';
 import { RouterView } from 'vue-router';
 import { storage } from './store';
 import { computed, ref, type Ref } from 'vue';
+import i18n from './i18n';
+import { useTranslation } from 'i18next-vue';
+const { t, i18next } = useTranslation();
 
 const favoratedBookmarks = computed(() => {
   const res: {
@@ -29,15 +32,31 @@ function getBookmarkName(bookmarkid: string): Ref<string> {
 
 <template>
   <nav>
-    <RouterLink to="/bookmarks/0">Bookmark</RouterLink>
-    <RouterLink to="/local">Local</RouterLink>
-    <RouterLink to="/topsites">Top Sites</RouterLink>
+    <RouterLink to="/bookmarks/0">{{ t('bookmark') }}</RouterLink>
+    <RouterLink to="/local"> {{ t('local') }}</RouterLink>
+    <RouterLink to="/topsites">{{ t('top_sites') }}</RouterLink>
     <a v-if="favoratedBookmarks.length > 0">|</a>
     <RouterLink v-for="item in favoratedBookmarks" :key="item.id" :to="`/bookmarks/${item.id}`">
       {{ item.name.value }}
     </RouterLink>
   </nav>
   <RouterView />
+  <footer class="page-footer-left">
+    <button
+      class="btn btn-link"
+      v-for="(v, langCode) in i18n.resources"
+      @click="
+        () => {
+          i18next.changeLanguage(langCode);
+          storage.lang.value = langCode;
+        }
+      "
+      :key="langCode"
+      :class="{ active: langCode === i18next.language }"
+    >
+      {{ v._lang }}
+    </button>
+  </footer>
   <ModalsContainer />
 </template>
 
@@ -47,5 +66,10 @@ main {
 }
 nav > a {
   margin-right: 20px;
+}
+footer.page-footer-left {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
 }
 </style>

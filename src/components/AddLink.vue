@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue';
+import { useTranslation } from 'i18next-vue';
+const { t } = useTranslation();
 
 const emit = defineEmits<{
   success: [title: string, url: string];
@@ -48,13 +50,13 @@ function keydown(ev: KeyboardEvent) {
             }
           }
         "
-        placeholder="Title"
+        :placeholder="t('title')"
       />
       <br />
-      <input ref="inputerUrl" v-model="url" @keydown="keydown" placeholder="URL" />
+      <input ref="inputerUrl" v-model="url" @keydown="keydown" :placeholder="t('url')" />
     </div>
-    <button class="edit-button" v-if="editing" @click="focusout">完成</button>
-    <button class="edit-button" v-else @click="focus">添加</button>
+    <button class="edit-button" v-if="editing" @click="focusout">{{ t('done') }}</button>
+    <button class="edit-button" v-else @click="focus">{{ t('add') }}</button>
   </div>
 </template>
 

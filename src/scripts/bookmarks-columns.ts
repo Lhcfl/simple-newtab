@@ -1,6 +1,7 @@
 import type { Column, LinkItem } from '@/types/columns';
 import { ref, watch, type Ref } from 'vue';
 import { ColumnsManager, type IdNullable } from './columns-manager';
+import i18next from 'i18next';
 
 export class BookmarksColumnManager extends ColumnsManager {
   rootId?: string;
@@ -19,7 +20,7 @@ export class BookmarksColumnManager extends ColumnsManager {
         this.watch_title();
       });
     } else {
-      this.title = ref('Bookmarks');
+      this.title = ref(i18next.t('bookmark'));
     }
     this.data = ref([]);
     this.update_data();
@@ -37,7 +38,6 @@ export class BookmarksColumnManager extends ColumnsManager {
         chrome.bookmarks.update(this.rootId, {
           title: v,
         });
-        this.update_data();
       }
     });
   }
@@ -75,7 +75,6 @@ export class BookmarksColumnManager extends ColumnsManager {
 
   async remove(id: string) {
     await chrome.bookmarks.remove(id);
-    this.update_data();
   }
 
   async move(
@@ -87,11 +86,13 @@ export class BookmarksColumnManager extends ColumnsManager {
       toId?: string | null | undefined;
     },
   ) {
+    const parentId = details.toId ?? undefined;
+    const diff =
+      (!parentId || details.fromId === details.toId) && details.toIndex > details.fromIndex ? 1 : 0;
     await chrome.bookmarks.move(id, {
       parentId: details.toId ?? undefined,
-      index: details.toIndex + (details.toIndex > details.fromIndex ? 1 : 0),
+      index: details.toIndex + diff,
     });
-    this.update_data();
   }
 
   async createLinkItem(parentId: string, item: IdNullable<LinkItem>): Promise<LinkItem> {
@@ -99,7 +100,7 @@ export class BookmarksColumnManager extends ColumnsManager {
       parentId,
       ...item,
     });
-    this.update_data();
+
     return {
       ...item,
       id: res.id,
@@ -111,7 +112,7 @@ export class BookmarksColumnManager extends ColumnsManager {
       parentId: this.rootId,
       title: item.title,
     });
-    this.update_data();
+
     return {
       ...item,
       id: res.id,
@@ -120,13 +121,13 @@ export class BookmarksColumnManager extends ColumnsManager {
 
   async updateColumn(id: string, item: Column): Promise<Column> {
     await chrome.bookmarks.update(id, { title: item.title });
-    this.update_data();
+
     return item;
   }
 
   async updateLinkItem(id: string, item: LinkItem): Promise<LinkItem> {
     await chrome.bookmarks.update(id, { title: item.title });
-    this.update_data();
+
     return item;
   }
 

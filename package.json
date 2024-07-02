@@ -14,8 +14,15 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.5.2",
+    "@fortawesome/free-brands-svg-icons": "^6.5.2",
+    "@fortawesome/free-regular-svg-icons": "^6.5.2",
+    "@fortawesome/free-solid-svg-icons": "^6.5.2",
+    "@fortawesome/vue-fontawesome": "^3.0.8",
     "@vueuse/core": "^10.9.0",
     "ant-design-vue": "4.x",
+    "i18next": "^23.11.5",
+    "i18next-vue": "^4.0.0",
     "pinia": "^2.1.7",
     "vue": "^3.4.21",
     "vue-final-modal": "^4.5.4",
@@ -39,6 +46,7 @@
     "stylus": "^0.63.0",
     "typescript": "~5.4.0",
     "vite": "^5.2.8",
+    "vite-plugin-i18next-loader": "^2.0.12",
     "vue-tsc": "^2.0.11"
   }
 }

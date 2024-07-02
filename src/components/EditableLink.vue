@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import { far } from '@fortawesome/free-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { computed, nextTick, ref } from 'vue';
+import { useTranslation } from 'i18next-vue';
+const { t } = useTranslation();
 
 const model = defineProps<{
   title: string;
@@ -42,21 +46,28 @@ const iconURL = computed(() => {
   url.searchParams.set('size', '32');
   return url.toString();
 });
+
+const isFolder = computed(() => model.url.startsWith('/'));
 </script>
 
 <template>
   <div class="editable-link">
     <input v-if="editing" ref="inputer" v-model="title" @keydown="keydown" @focusout="focusout" />
-    <RouterLink v-else-if="model.url.startsWith('/')" :to="model.url">
-      {{ model.title ?? 'No title' }}
-    </RouterLink>
+    <template v-else-if="isFolder">
+      <FontAwesomeIcon :icon="far.faFolder" />
+      <RouterLink :to="model.url">
+        {{ model.title ?? 'No title' }}
+      </RouterLink>
+    </template>
     <template v-else>
       <img :src="iconURL" width="16" height="16" />
       <a :href="model.url"> {{ model.title ?? 'No title' }} </a>
     </template>
     <div class="control-group" v-if="!editing">
-      <button class="edit-button" @click="focus">编辑</button>
-      <button class="edit-button" @click="emit('update:title', '')">删除</button>
+      <button class="edit-button" @click="focus">{{ t('edit') }}</button>
+      <button class="edit-button" @click="emit('update:title', '')" v-if="!isFolder">
+        {{ t('remove') }}
+      </button>
     </div>
   </div>
 </template>

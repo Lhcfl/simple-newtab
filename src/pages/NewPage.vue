@@ -21,7 +21,9 @@
             class="column-title"
             :min-width="100"
             :model-value="column.title"
-            @update:modelValue="(t) => manager.updateColumn(column.id, { ...column, title: t })"
+            @update:modelValue="
+              (t) => manager.updateColumn(column.id, { ...column, title: t }).catch(alertError)
+            "
           />
           <draggable
             tag="ul"
@@ -53,13 +55,19 @@
                   @update:title="
                     (t) => {
                       if (t) {
-                        manager.updateLinkItem(link.id, {
-                          ...link,
-                          title: t,
-                        });
+                        manager
+                          .updateLinkItem(link.id, {
+                            ...link,
+                            title: t,
+                          })
+                          .catch(alertError);
                       } else {
-                        manager.remove(link.id);
-                        manager.removeEmptyColumn();
+                        manager
+                          .remove(link.id)
+                          .then(() => {
+                            manager.removeEmptyColumn().catch(alertError);
+                          })
+                          .catch(alertError);
                       }
                     }
                   "
@@ -75,32 +83,40 @@
               url=""
               @success="
                 (title, url) => {
-                  manager.createLinkItem(column.id, {
-                    title,
-                    url,
-                  });
+                  manager
+                    .createLinkItem(column.id, {
+                      title,
+                      url,
+                    })
+                    .catch(alertError);
                 }
               "
             />
           </div>
         </div>
       </template>
+      <template #footer>
+        <div class="column add-link">
+          <AddLink
+            title=""
+            url=""
+            @success="
+              (title, url) => {
+                manager
+                  .createColumn({ title: 'untitled', items: [] })
+                  .then((col) => {
+                    manager.createLinkItem(col.id, { title, url }).catch(alertError);
+                  })
+                  .catch(alertError);
+              }
+            "
+          />
+        </div>
+      </template>
     </draggable>
-    <div class="column add-link">
-      <AddLink
-        title=""
-        url=""
-        @success="
-          async (title, url) => {
-            const col = await manager.createColumn({ title: 'untitled', items: [] });
-            await manager.createLinkItem(col.id, { title, url });
-          }
-        "
-      />
-    </div>
   </main>
-  <button class="float add-favorite" v-if="isBookmarkPage" @click="toggleFavorite">
-    {{ isFavoratedPage ? '从nav删去' : '添加到nav' }}
+  <button class="float add-favorite btn btn-link" v-if="isBookmarkPage" @click="toggleFavorite">
+    {{ isFavoratedPage ? t('remove_from_nav') : t('add_to_nav') }}
   </button>
 </template>
 
@@ -119,6 +135,9 @@ import { BookmarksColumnManager } from '@/scripts/bookmarks-columns';
 import { useRoute } from 'vue-router';
 import { TopSitesColumnManager } from '@/scripts/top-sites-columns';
 import { storage } from '@/store';
+import { useMessageBox } from '@/scripts/message-box';
+import { useTranslation } from 'i18next-vue';
+const { t } = useTranslation();
 
 const props = defineProps<{
   rootId?: string;
@@ -168,13 +187,19 @@ function dragEnd(e: {
   from: HTMLElement;
   to: HTMLElement;
 }) {
+  manager.value
+    .move(e.item.getAttribute('data-id')!, {
+      fromIndex: e.oldIndex,
+      toIndex: e.newIndex,
+      fromId: e.from.parentElement?.getAttribute('data-id'),
+      toId: e.to.parentElement?.getAttribute('data-id'),
+    })
+    .catch(alertError);
+}
+
+function alertError(e: Error | string) {
   console.log(e);
-  manager.value.move(e.item.getAttribute('data-id')!, {
-    fromIndex: e.oldIndex,
-    toIndex: e.newIndex,
-    fromId: e.from.parentElement?.getAttribute('data-id'),
-    toId: e.to.parentElement?.getAttribute('data-id'),
-  });
+  useMessageBox('Error', typeof e === 'string' ? e : e.message).open();
 }
 
 const listener = (e: WheelEvent) => {
@@ -229,6 +254,9 @@ main
   font-size 20px
   max-width 400px
 
+.list-item:hover
+  background-color rgba(50, 255, 50, 0.15)
+
 ul.column-items
   list-style none
   padding-left 20px
@@ -252,16 +280,11 @@ ul.column-items
   min-height: 500px
   width fix-content
   &.add-link
-    margin-left: 450px
+    margin-left: 50px
+    font-size 20px
 
 .float.add-favorite
   position fixed
   right 10px
   bottom 10px
-  border none
-  background none
-  color var(--primary)
-  transition all 0.3s
-  &:hover
-    opacity 0.8
 </style>
