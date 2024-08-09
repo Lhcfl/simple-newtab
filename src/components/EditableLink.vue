@@ -3,6 +3,7 @@ import { far } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { computed, nextTick, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
+import { settings } from '@/settings_store';
 const { t } = useTranslation();
 
 const model = defineProps<{
@@ -48,6 +49,8 @@ const iconURL = computed(() => {
 });
 
 const isFolder = computed(() => model.url.startsWith('/'));
+
+const iconDisabled = computed(() => settings.bool_configs.value.disable_img);
 </script>
 
 <template>
@@ -60,7 +63,7 @@ const isFolder = computed(() => model.url.startsWith('/'));
       </RouterLink>
     </template>
     <template v-else>
-      <img :src="iconURL" width="16" height="16" />
+      <img v-if="!iconDisabled" :src="iconURL" width="16" height="16" />
       <a :href="model.url"> {{ model.title ?? 'No title' }} </a>
     </template>
     <div class="control-group" v-if="!editing">

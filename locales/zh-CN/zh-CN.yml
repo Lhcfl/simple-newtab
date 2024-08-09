@@ -12,3 +12,9 @@ translation:
   add_to_nav: 固定到顶部
   title: 标题
   url: 链接
+  settings:
+    reload_to_save: 刷新以保存
+    title: 设置
+    custom_css: 自定义CSS
+    bool:
+      disable_img: 不在链接上显示图标

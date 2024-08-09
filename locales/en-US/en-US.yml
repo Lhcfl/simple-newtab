@@ -12,3 +12,9 @@ translation:
   add_to_nav: Add to nav
   title: Title
   url: URL
+  settings:
+    reload_to_save: Reload to save
+    title: Settings
+    custom_css: Custom CSS
+    bool:
+      disable_img: Disable link image

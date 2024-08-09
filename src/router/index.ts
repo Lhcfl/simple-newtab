@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import NewPage from '@/pages/NewPage.vue';
+import SettingsPage from '@/pages/SettingsPage.vue';
 import { storage } from '@/store';
 
 const router = createRouter({
@@ -34,6 +35,11 @@ const router = createRouter({
       props: {
         source: 'topsites',
       },
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: SettingsPage,
     },
   ],
 });
